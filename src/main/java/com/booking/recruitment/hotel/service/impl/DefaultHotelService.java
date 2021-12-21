@@ -2,6 +2,7 @@ package com.booking.recruitment.hotel.service.impl;
 
 import com.booking.recruitment.hotel.exception.BadRequestException;
 import com.booking.recruitment.hotel.exception.ElementNotFoundException;
+import com.booking.recruitment.hotel.exception.ElementWithSameIDAlreadyExistsException;
 import com.booking.recruitment.hotel.model.Hotel;
 import com.booking.recruitment.hotel.repository.HotelRepository;
 import com.booking.recruitment.hotel.service.HotelService;
@@ -45,20 +46,22 @@ class DefaultHotelService implements HotelService {
     @Override
     public Hotel getHotelDetailsById(Long id) {
         Optional<Hotel> hotel = hotelRepository.findById(id);
-        if (hotel.isPresent()) {
-            return hotel.get();
+        if (!hotel.isPresent()) {
+            throw new ElementNotFoundException("The hotel with given ID hasn't been found!");
         }
-        return null;
+        return hotel.get();
     }
 
     @Override
-    public void deleteHotelById(Long id) throws ElementNotFoundException {
+    public Hotel deleteHotelById(Long id) {
         Optional<Hotel> hotel = hotelRepository.findById(id);
-        if (hotel.isPresent()) {
-            hotel.get().setDeleted(true);
-            hotelRepository.save(hotel.get());
-        } else {
-            throw new ElementNotFoundException("Could not find city which has provided ID");
+        if (!hotel.isPresent()) {
+            throw new ElementNotFoundException("The hotel with given ID hasn't been found!");
         }
+        else if(hotel.get().isDeleted()){
+            throw new ElementWithSameIDAlreadyExistsException("The hotel with given ID has already been deleted!");
+        }
+        hotel.get().setDeleted(true);
+        return hotelRepository.save(hotel.get());
     }
 }

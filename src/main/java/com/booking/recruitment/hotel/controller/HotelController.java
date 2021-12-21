@@ -39,12 +39,8 @@ public class HotelController {
   }
 
   @DeleteMapping(value = "/{id}")
-  public ResponseEntity<Void> deleteHotelById(@PathVariable Long id) {
-    try {
-      hotelService.deleteHotelById(id);
-      return new ResponseEntity<>(HttpStatus.OK);
-    } catch (ElementNotFoundException e) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+  @ResponseStatus(HttpStatus.OK)
+  public Hotel deleteHotelById(@PathVariable Long id) {
+     return hotelService.deleteHotelById(id);
   }
 }
